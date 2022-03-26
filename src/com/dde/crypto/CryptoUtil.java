@@ -16,6 +16,7 @@ public class CryptoUtil {
         while(true) {
             System.out.print("\n Private key: ");
             String input = scanner.nextLine();
+            System.out.print("\n");
 
             privateKey = CryptoUtil.getRandomBytes(input.getBytes(StandardCharsets.UTF_8));
 

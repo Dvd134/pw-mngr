@@ -85,7 +85,6 @@ public class BusinessLogic {
                 return previousId + 1;
 
             counter++;
-            //previousId = Integer.parseInt(line.split(" <---> ")[0]);
             previousId = currentId;
         }
         return counter;

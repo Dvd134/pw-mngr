@@ -36,7 +36,7 @@ public class Main {
                      Menu:
                      1. Filter
                      2. Add password
-                     3. Update a password
+                     3. Update password
                      4. Show all
                      5. Delete password
                      0. Exit

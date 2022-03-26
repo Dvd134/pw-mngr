@@ -21,7 +21,12 @@ public class Decryption {
         BufferedInputStream bis = new BufferedInputStream(fis);
 
         byte[] IV = new byte[CryptoUtil.getNoOfBytes()];
-        bis.read(IV);
+        int nBytes = bis.read(IV);
+
+        if(nBytes < CryptoUtil.getNoOfBytes()) {
+            System.out.println("\n ERROR: Error reading IV");
+            System.exit(0);
+        }
 
         Cipher cipher = Cipher.getInstance(Encryption.getEncryptionAlgorithm() + Encryption.getEncryptionBlockCipherMode());
         SecretKeySpec keySpec = new SecretKeySpec(privateKey, Encryption.getEncryptionAlgorithm());
