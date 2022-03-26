@@ -23,6 +23,13 @@ public class CryptoUtil {
             try {
                 loadProperties(privateKey);
                 break;
+            } catch(NegativeArraySizeException nase) {
+                System.out.print("\n INFO: Private key is: " + getHex(privateKey));
+                System.out.print("\n INFO: Get the private key, init properties file and rerun the app! \n INFO: Generating 4 random IV...");
+                for(int i = 0 ; i < 4 ; i++) {
+                    System.out.print("\n " + getHex(getRandomBytes(null)));
+                }
+                System.exit(0);
             } catch(Exception e) {
                 System.out.print("\n ERROR: Invalid private key");
             }

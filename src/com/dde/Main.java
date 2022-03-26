@@ -33,6 +33,7 @@ public class Main {
         while(true) {
 
             System.out.println("""
+                     
                      Menu:
                      1. Filter
                      2. Add password

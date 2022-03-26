@@ -3,14 +3,12 @@ package com.dde.entities;
 public class Properties {
     private static String fileLocation;
     private static String cipherName;
-    private static String plaintextName;
     private static String mainMenuOptions;
     private static String updateKeyMenuOptions;
 
-    public Properties(String fileLocation, String cipherName, String plaintextName, String mainMenuOptions, String updateKeyMenuOptions) {
+    public Properties(String fileLocation, String cipherName, String mainMenuOptions, String updateKeyMenuOptions) {
         Properties.fileLocation = fileLocation;
         Properties.cipherName = cipherName;
-        Properties.plaintextName = plaintextName;
         Properties.mainMenuOptions = mainMenuOptions;
         Properties.updateKeyMenuOptions = updateKeyMenuOptions;
     }
@@ -21,10 +19,6 @@ public class Properties {
 
     public static String getCipherName() {
         return cipherName;
-    }
-
-    public static String getPlaintextName() {
-        return plaintextName;
     }
 
     public static String getMainMenuOptions() {

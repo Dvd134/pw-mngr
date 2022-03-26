@@ -21,23 +21,19 @@ public class Utils {
         FileReader propertiesReader = new FileReader("src/cipher.properties");
         p.load(propertiesReader);
 
-        new Properties(Decryption.decryptProperty(p.getProperty("fileLocation"), privateKey), Decryption.decryptProperty(p.getProperty("cipherName"), privateKey), Decryption.decryptProperty(p.getProperty("plaintextName"), privateKey), Decryption.decryptProperty(p.getProperty("mainMenuOptions"), privateKey), Decryption.decryptProperty(p.getProperty("updateKeyMenuOptions"), privateKey));
+        new Properties(Decryption.decryptProperty(p.getProperty("fileLocation"), privateKey), Decryption.decryptProperty(p.getProperty("cipherName"), privateKey), Decryption.decryptProperty(p.getProperty("mainMenuOptions"), privateKey), Decryption.decryptProperty(p.getProperty("updateKeyMenuOptions"), privateKey));
 
         propertiesReader.close();
     }
 
-    public static void initCipherFile(File cipherFile, byte[] privateKey) throws IOException, InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void initCipherFile(File cipherFile, byte[] privateKey) {
         if(!cipherFile.exists()) {
             System.out.println("\n WARN: " + Properties.getCipherName() + " could not be located at: " + Properties.getFileLocation());
             try {
-                File plainTextFile = new File(Properties.getFileLocation() + Properties.getPlaintextName());
-                plainTextFile.createNewFile();
                 Encryption.encrypt(new StringBuilder().append("ID <---> PASSWORD <---> TAGS").append(System.lineSeparator()), privateKey);
-                plainTextFile.delete();
             } catch(IOException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | IllegalBlockSizeException | NoSuchPaddingException e) {
                 System.out.print("\n ERROR: " + Properties.getCipherName() + " could not be created at: " + Properties.getCipherName());
                 e.printStackTrace();
-                throw e;
             }
         }
     }
