@@ -30,6 +30,11 @@ public class BusinessLogic {
                 break;
         }
 
+        return searchLine(plainTextContent, id);
+    }
+
+    public static String searchLine(StringBuilder plainTextContent, int id) {
+
         // ---SEARCH THE ID BETWEEN FILE ENTRIES--- //
         String[] lines = plainTextContent.toString().split(System.lineSeparator());
         boolean skipHeader = true;

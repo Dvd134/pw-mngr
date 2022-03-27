@@ -20,6 +20,7 @@ public class MenuBusinessLogic extends BusinessLogic {
         for(String line : lines) {
             // ---SKIP FIRST LINE--- //
             if(skipHeader) {
+                System.out.print("\n " + line);
                 skipHeader = false;
                 continue;
             }
@@ -112,6 +113,7 @@ public class MenuBusinessLogic extends BusinessLogic {
     public static StringBuilder updatePassword(StringBuilder plaintextContent) {
 
         String line = getLineToEdit(plaintextContent);
+        int lineId = Integer.parseInt(line.split(" <---> ")[0]);
 
         // ---GET MENU OPTION FROM USER--- //
         while(true) {
@@ -126,9 +128,11 @@ public class MenuBusinessLogic extends BusinessLogic {
             switch (choice.toLowerCase()) {
                 case "1", "keys":
                     plaintextContent = doKeyUpdate(plaintextContent, "keys", line);
+                    line = searchLine(plaintextContent, lineId);
                     break;
                 case "2", "pw":
                     plaintextContent = doKeyUpdate(plaintextContent, "password", line);
+                    line = searchLine(plaintextContent, lineId);
                     break;
                 case "0", "exit":
                     return plaintextContent;
