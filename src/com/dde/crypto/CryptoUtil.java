@@ -1,5 +1,7 @@
 package com.dde.crypto;
 
+import java.io.Console;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -12,10 +14,12 @@ public class CryptoUtil {
     private static final int noOfBytes = 16;
 
     public static byte[] requestPrivateKey() throws NoSuchAlgorithmException {
+
+        Console console = System.console();
         byte[] privateKey;
         while(true) {
-            System.out.print("\n Private key: ");
-            String input = scanner.nextLine();
+
+            String input = String.valueOf(console.readPassword("\n Private key: "));
             System.out.print("\n");
 
             privateKey = CryptoUtil.getRandomBytes(input.getBytes(StandardCharsets.UTF_8));
@@ -30,8 +34,13 @@ public class CryptoUtil {
                     System.out.print("\n " + getHex(getRandomBytes(null)));
                 }
                 System.exit(0);
+            } catch (FileNotFoundException fne) {
+                System.out.print("\n ERROR: cipher.properties not found!");
+                fne.printStackTrace();
+                System.exit(0);
             } catch(Exception e) {
                 System.out.print("\n ERROR: Invalid private key");
+                e.printStackTrace();
             }
         }
         return privateKey;

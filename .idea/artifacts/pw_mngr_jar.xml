@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="pw-mngr:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/pw_mngr_jar</output-path>
+    <root id="archive" name="pw-mngr.jar">
+      <element id="module-output" name="pw-mngr" />
+    </root>
+  </artifact>
+</component>

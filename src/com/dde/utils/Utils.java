@@ -8,7 +8,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -18,12 +17,9 @@ public class Utils {
 
     public static void loadProperties(byte[] privateKey) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         java.util.Properties p = new java.util.Properties();
-        FileReader propertiesReader = new FileReader("src/cipher.properties");
-        p.load(propertiesReader);
+        p.load(Utils.class.getResourceAsStream("/cipher.properties"));
 
         new Properties(Decryption.decryptProperty(p.getProperty("fileLocation"), privateKey), Decryption.decryptProperty(p.getProperty("cipherName"), privateKey), Decryption.decryptProperty(p.getProperty("mainMenuOptions"), privateKey), Decryption.decryptProperty(p.getProperty("updateKeyMenuOptions"), privateKey));
-
-        propertiesReader.close();
     }
 
     public static void initCipherFile(File cipherFile, byte[] privateKey) {
