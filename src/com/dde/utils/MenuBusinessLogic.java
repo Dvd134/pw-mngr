@@ -4,14 +4,38 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import static com.dde.Main.scanner;
+import static com.dde.Main.rank;
+import static com.dde.Main.size;
+
+import mpi.*;
 
 public class MenuBusinessLogic extends BusinessLogic {
 
-    public static void doFilter(StringBuilder plaintextContent) {
+    public static void doFilter(StringBuilder plaintextContent) throws MPIException {
 
-        // ---GET FILTER KEY FROM USER--- //
-        System.out.print("\n Filter key: ");
-        String filterKey = scanner.nextLine();
+        String filterKey = "";
+
+        if(rank == 0) {
+
+            // ---GET FILTER KEY FROM USER--- //
+            System.out.print("\n Filter key: ");
+            filterKey = scanner.nextLine();
+
+            for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                MPI.COMM_WORLD.send(filterKey.toCharArray(), filterKey.length(), MPI.CHAR, proc, 97);
+            }
+            MPI.COMM_WORLD.barrier();
+        } else {
+            mpi.Status status = null;
+            status = MPI.COMM_WORLD.probe(0, 97);
+            int inputLength = status.getCount(MPI.CHAR);
+            char[] message = new char [inputLength];
+            MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 97);
+            filterKey = new String(message);
+
+            MPI.COMM_WORLD.barrier();
+        }
+
         boolean isDisplayable = false;
 
         // ---SEARCH IN EACH ROW--- //
@@ -20,7 +44,8 @@ public class MenuBusinessLogic extends BusinessLogic {
         for(String line : lines) {
             // ---SKIP FIRST LINE--- //
             if(skipHeader) {
-                System.out.print("\n " + line);
+                if(rank == 0)
+                    System.out.print("\n " + line);
                 skipHeader = false;
                 continue;
             }
@@ -31,7 +56,8 @@ public class MenuBusinessLogic extends BusinessLogic {
             try {
                 int possibleIdValue = Integer.parseInt(filterKey);
                 if(possibleIdValue == id) {
-                    System.out.print("\n " + line);
+                    if(rank == 0)
+                        System.out.print("\n " + line);
                     continue;
                 }
             } catch(NumberFormatException e) {
@@ -50,22 +76,52 @@ public class MenuBusinessLogic extends BusinessLogic {
             // ---VALIDATE IF PRINTABLE--- //
             if(isDisplayable) {
                 isDisplayable = false;
-                System.out.print("\n " + line);
+                if(rank == 0)
+                    System.out.print("\n " + line);
             }
         }
-        System.out.println("\n");
+        if(rank == 0)
+            System.out.println("\n");
         // ---FREEZE FOR READING--- //
         scanner.nextLine();
     }
 
-    public static StringBuilder addPassword(StringBuilder plaintextContent){
+    public static StringBuilder addPassword(StringBuilder plaintextContent) throws MPIException {
 
-        // ---GET INPUT FROM THE USER--- //
-        System.out.print("\n Keys: ");
-        String keys = scanner.nextLine();
+        String keys = "";
+        String password = "";
 
-        System.out.print("\n Password: ");
-        String password = scanner.nextLine();
+        if(rank == 0) {
+            // ---GET INPUT FROM THE USER--- //
+            System.out.print("\n Keys: ");
+            keys = scanner.nextLine();
+
+            System.out.print("\n Password: ");
+            password = scanner.nextLine();
+
+            for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                MPI.COMM_WORLD.send(keys.toCharArray(), keys.length(), MPI.CHAR, proc, 96);
+                MPI.COMM_WORLD.send(password.toCharArray(), password.length(), MPI.CHAR, proc, 95);
+            }
+            MPI.COMM_WORLD.barrier();
+
+        } else {
+
+            mpi.Status status = null;
+            status = MPI.COMM_WORLD.probe(0, 96);
+            int inputLength = status.getCount(MPI.CHAR);
+            char[] message = new char [inputLength];
+            MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 96);
+            keys = new String(message);
+
+            status = MPI.COMM_WORLD.probe(0, 95);
+            inputLength = status.getCount(MPI.CHAR);
+            message = new char [inputLength];
+            MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 95);
+            password = new String(message);
+
+            MPI.COMM_WORLD.barrier();
+        }
 
         // ---GENERATE AN ID--- //
         String id = String.valueOf(getId(plaintextContent));
@@ -110,20 +166,61 @@ public class MenuBusinessLogic extends BusinessLogic {
         return updatedContent;
     }
 
-    public static StringBuilder updatePassword(StringBuilder plaintextContent) {
+    public static StringBuilder updatePassword(StringBuilder plaintextContent) throws MPIException {
 
-        String line = getLineToEdit(plaintextContent);
+        String line = "";
+        if(rank == 0) {
+
+            line = getLineToEdit(plaintextContent);
+
+            for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                MPI.COMM_WORLD.send(line.toCharArray(), line.length(), MPI.CHAR, proc, 94);
+            }
+            MPI.COMM_WORLD.barrier();
+        } else {
+
+            mpi.Status status = null;
+            status = MPI.COMM_WORLD.probe(0, 94);
+            int inputLength = status.getCount(MPI.CHAR);
+            char[] message = new char [inputLength];
+            MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 94);
+            line = new String(message);
+
+            MPI.COMM_WORLD.barrier();
+        }
+
         int lineId = Integer.parseInt(line.split(" <---> ")[0]);
 
         // ---GET MENU OPTION FROM USER--- //
         while(true) {
-            System.out.print("\n Update menu:\n " +
-                    "1. keys\n " +
-                    "2. password\n " +
-                    "0. exit\n ");
-            String choice = scanner.nextLine();
-            if(!isValidChoice(choice, "update"))
-                continue;
+
+            String choice = "";
+            if(rank == 0) {
+
+                System.out.print("\n Update menu:\n " +
+                        "1. keys\n " +
+                        "2. password\n " +
+                        "0. exit\n ");
+                choice = scanner.nextLine();
+                if(!isValidChoice(choice, "update"))
+                    continue;
+
+                for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                    MPI.COMM_WORLD.send(choice.toCharArray(), choice.length(), MPI.CHAR, proc, 93);
+                }
+                MPI.COMM_WORLD.barrier();
+            } else {
+
+                mpi.Status status = null;
+                status = MPI.COMM_WORLD.probe(0, 93);
+                int inputLength = status.getCount(MPI.CHAR);
+                char[] message = new char [inputLength];
+                MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 93);
+                choice = new String(message);
+
+                MPI.COMM_WORLD.barrier();
+            }
+
 
             switch (choice.toLowerCase()) {
                 case "1", "keys":
@@ -152,9 +249,28 @@ public class MenuBusinessLogic extends BusinessLogic {
         scanner.nextLine();
     }
 
-    public static StringBuilder deleteKey(StringBuilder plaintextContent) {
+    public static StringBuilder deleteKey(StringBuilder plaintextContent) throws MPIException {
 
-        String line = getLineToEdit(plaintextContent);
+        String line = "";
+        if(rank == 0) {
+
+            line = getLineToEdit(plaintextContent);
+
+            for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                MPI.COMM_WORLD.send(line.toCharArray(), line.length(), MPI.CHAR, proc, 89);
+            }
+            MPI.COMM_WORLD.barrier();
+        } else {
+
+            mpi.Status status = null;
+            status = MPI.COMM_WORLD.probe(0, 89);
+            int inputLength = status.getCount(MPI.CHAR);
+            char[] message = new char [inputLength];
+            MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 89);
+            line = new String(message);
+
+            MPI.COMM_WORLD.barrier();
+        }
 
         String[] lines = plaintextContent.toString().split(System.lineSeparator());
         StringBuilder updatedContent = new StringBuilder();
@@ -162,7 +278,7 @@ public class MenuBusinessLogic extends BusinessLogic {
             if (!row.equals(line)) {
                 updatedContent.append(row).append(System.lineSeparator());
             } else {
-                System.out.print("\n INFO: Password deleted!");
+                System.out.print("\n INFO(" + rank + "): Password deleted!");
             }
         }
         return updatedContent;

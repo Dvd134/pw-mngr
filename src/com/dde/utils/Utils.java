@@ -13,6 +13,10 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import mpi.*;
+
+import static com.dde.Main.rank;
+
 public class Utils {
 
     public static void loadProperties(byte[] privateKey) throws IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
@@ -24,11 +28,11 @@ public class Utils {
 
     public static void initCipherFile(File cipherFile, byte[] privateKey) {
         if(!cipherFile.exists()) {
-            System.out.println("\n WARN: " + Properties.getCipherName() + " could not be located at: " + Properties.getFileLocation());
+            System.out.println("\n WARN(" + rank + "): " + Properties.getCipherName() + " could not be located at: " + Properties.getFileLocation());
             try {
                 Encryption.encrypt(new StringBuilder().append("ID <---> PASSWORD <---> TAGS").append(System.lineSeparator()), privateKey);
             } catch(IOException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | IllegalBlockSizeException | NoSuchPaddingException e) {
-                System.out.print("\n ERROR: " + Properties.getCipherName() + " could not be created at: " + Properties.getCipherName());
+                System.out.print("\n ERROR(" + rank + "): " + Properties.getCipherName() + " could not be created at: " + Properties.getFileLocation());
                 e.printStackTrace();
             }
         }
@@ -37,9 +41,9 @@ public class Utils {
     public static void saveFile(StringBuilder plainTextContent, byte[] privateKey) {
         try {
             Encryption.encrypt(plainTextContent, privateKey);
-            System.out.print("\n INFO: Encrypted file saved successfully!");
+            System.out.print("\n INFO(" + rank + "): Encrypted file saved successfully!");
         } catch(Exception e) {
-            System.out.print("\n ERROR: Encrypted file failed to be saved! Any changes will be discarded");
+            System.out.print("\n ERROR(" + rank + "): Encrypted file failed to be saved! Any changes will be discarded");
             e.printStackTrace();
         }
     }

@@ -13,6 +13,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+import static com.dde.Main.rank;
+
 public class Decryption {
 
     public static StringBuilder decrypt(File cipherFile, byte[] privateKey) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
@@ -24,7 +26,7 @@ public class Decryption {
         int nBytes = bis.read(IV);
 
         if(nBytes < CryptoUtil.getNoOfBytes()) {
-            System.out.println("\n ERROR: Error reading IV");
+            System.out.println("\n ERROR(" + rank + "): Error reading IV");
             System.exit(0);
         }
 
