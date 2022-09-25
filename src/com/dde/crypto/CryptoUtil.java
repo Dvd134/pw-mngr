@@ -19,7 +19,13 @@ public class CryptoUtil {
         byte[] privateKey;
         while(true) {
 
-            String input = String.valueOf(console.readPassword("\n Private key: "));
+            String input;
+            if (console == null) {
+                System.out.println("\n WARN: No console available\n Private key: ");
+                input = scanner.nextLine();
+            } else {
+                input = String.valueOf(console.readPassword("\n Private key: "));
+            }
             System.out.print("\n");
 
             privateKey = CryptoUtil.getRandomBytes(input.getBytes(StandardCharsets.UTF_8));

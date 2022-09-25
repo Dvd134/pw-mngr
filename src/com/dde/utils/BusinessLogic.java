@@ -3,8 +3,11 @@ package com.dde.utils;
 import com.dde.entities.Properties;
 
 import java.util.Scanner;
+import mpi.*;
 
 import static com.dde.Main.scanner;
+import static com.dde.Main.rank;
+import static com.dde.Main.size;
 
 public class BusinessLogic {
 
@@ -95,7 +98,7 @@ public class BusinessLogic {
         return counter;
     }
 
-    public static StringBuilder doKeyUpdate(StringBuilder plaintextContent, String choice, String line) {
+    public static StringBuilder doKeyUpdate(StringBuilder plaintextContent, String choice, String line) throws MPIException {
 
         // ---SPLIT LINE INTO COMPONENTS--- //
         int lineId = Integer.parseInt(line.split(" <---> ")[0]);
@@ -104,11 +107,49 @@ public class BusinessLogic {
 
         // ---REGARDING CHOICE OVERRIDE SPECIFIC COMPONENT--- //
         if (choice.equals("keys")) {
-            System.out.print("\n Rewrite the entire tag section! Initial version:\n " + lineKeys + "\n\n ");
-            lineKeys = scanner.nextLine();
+            if(rank == 0) {
+
+                System.out.print("\n Rewrite the entire tag section! Initial version:\n " + lineKeys + "\n\n ");
+                lineKeys = scanner.nextLine();
+
+                for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                    MPI.COMM_WORLD.send(lineKeys.toCharArray(), lineKeys.length(), MPI.CHAR, proc, 7);
+                }
+                MPI.COMM_WORLD.barrier();
+            } else {
+
+                mpi.Status status = null;
+                status = MPI.COMM_WORLD.probe(0, 7);
+                int inputLength = status.getCount(MPI.CHAR);
+                char[] message = new char [inputLength];
+                MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 7);
+                lineKeys = new String(message);
+
+                MPI.COMM_WORLD.barrier();
+            }
+
         } else if (choice.equals("password")) {
-            System.out.print("\n Rewrite the password! Initial version:\n " + linePassword + "\n\n ");
-            linePassword = scanner.nextLine();
+            if(rank == 0) {
+
+                System.out.print("\n Rewrite the password! Initial version:\n " + linePassword + "\n\n ");
+                linePassword = scanner.nextLine();
+
+                for(int proc = 1 ; proc < size ; proc++) { //send the input to the other node
+                    MPI.COMM_WORLD.send(linePassword.toCharArray(), lineKeys.length(), MPI.CHAR, proc, 8);
+                }
+                MPI.COMM_WORLD.barrier();
+            } else {
+
+                mpi.Status status = null;
+                status = MPI.COMM_WORLD.probe(0, 8);
+                int inputLength = status.getCount(MPI.CHAR);
+                char[] message = new char [inputLength];
+                MPI.COMM_WORLD.recv(message, inputLength, MPI.CHAR, 0, 8);
+                linePassword = new String(message);
+
+                MPI.COMM_WORLD.barrier();
+            }
+
         }
 
         // ---REBUILD THE LINE--- //
