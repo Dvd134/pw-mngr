@@ -23,7 +23,6 @@ import mpi.*;
 
 public class Main {
 
-    // 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
     public static Scanner scanner = new Scanner(System.in);
     public static int rank;
     public static int size;
